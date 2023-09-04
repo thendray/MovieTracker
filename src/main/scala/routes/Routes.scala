@@ -1,15 +1,16 @@
+package routes
+
 import actors.MovieTrackerRegistry
 import actors.MovieTrackerRegistry._
-import models.Films
-
-import akka.actor.typed.{ActorRef, ActorSystem}
-import com.typesafe.config.{Config, ConfigFactory}
 import akka.actor.typed.scaladsl.AskPattern._
-
-
+import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import com.typesafe.config.{Config, ConfigFactory}
+import models.requests.FilmCard
+import models.responses.{ActionResult, ConfirmResponse}
+import models.{Film, Films}
 
 import scala.concurrent.Future
 
@@ -27,6 +28,16 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
 
   def getFilms(): Future[Films] =
     movieTrackerRegistry.ask(GetFilms)
+
+  def addFilm(film: FilmCard): Future[ConfirmResponse] =
+    movieTrackerRegistry.ask(AddFilm)
+
+  def updateFilm(film: Film): Future[ConfirmResponse] =
+    movieTrackerRegistry.ask(updateFilmInfo)
+
+  def deleteFilm(film: Film): Future[ConfirmResponse] =
+    movieTrackerRegistry.ask(DeleteFilm)
+
 
 
   val movieTrackerRoutes: Route =
