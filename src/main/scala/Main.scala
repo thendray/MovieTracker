@@ -1,3 +1,4 @@
+import actors.MovieTrackerRegistry
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
@@ -31,19 +32,13 @@ object Main {
   def main(args: Array[String]): Unit = {
 
     val rootBehavior = Behaviors.setup[Nothing] { context =>
-//      val userRegistryActor = context.spawn(UserRegistry(), "UserRegistryActor")
-//      context.watch(userRegistryActor)
+      val movieTrackerRegistry = context.spawn(MovieTrackerRegistry(), "MovieTrackerActor")
+      context.watch(movieTrackerRegistry)
 
-//      val routes = new UserRoutes(userRegistryActor)(context.system)
-
-      val route: Route = path("movies" / "1") {
-        get {
-          complete("Ura!")
-        }
-      }
+      val routes = new Routes(movieTrackerRegistry)(context.system)
 
 
-      start(route)(context.system)
+      start(routes.movieTrackerRoutes)(context.system)
 
       Behaviors.empty
     }
