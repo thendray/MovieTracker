@@ -4,8 +4,8 @@ import models.{Film, Films}
 import repositories.FilmRepositoryTrait
 
 class FilmRepositorySlickEdition extends FilmRepositoryTrait {
-  override def getAllFilms(): Films = {
-    Films(Seq(Film(1, "name", 1900, "drama", 5.5, "some note")))
+  override def getAllFilms(): Option[Films] = {
+    Option(Films(Seq(Film(1, "name", 1900, "drama", 5.5, "some note"))))
   }
 }
 
