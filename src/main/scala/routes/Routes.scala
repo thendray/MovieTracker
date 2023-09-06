@@ -9,6 +9,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
+import configs.AppConfiguration
 import models.requests.FilmCard
 import models.responses.{ActionResult, ConfirmResponse}
 import models.{Film, Films}
@@ -21,10 +22,9 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import tools.JsonFormats._
 
-  private val configs: Config = ConfigFactory.load("app.conf")
   private implicit val timeout =
     Timeout.
-      create(configs.
+      create(AppConfiguration.configs.
         getDuration("my-app.routes.ask-timeout")
     )
 
@@ -54,7 +54,7 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
             }
 
         },
-        path("film") {
+        pathPrefix("film") {
           concat(
             path(IntNumber) {
               filmId =>
@@ -63,7 +63,7 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
                   onSuccess(result) { response =>
                     response.message match {
                       case Some(mess) => complete((StatusCodes.OK, mess))
-                      case None => complete(StatusCodes.NotFound)
+                      case None => complete(StatusCodes.NotFound, "No film with such id")
                     }
                   }
                 }
@@ -80,7 +80,10 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
               entity(as[Film]) { film =>
                 val result: Future[ConfirmResponse] = updateFilm(film)
                 onSuccess(result) { response =>
-                  complete((StatusCodes.OK, response))
+                  response.message match {
+                    case Some(mess) => complete((StatusCodes.OK, mess))
+                    case None => complete(StatusCodes.NotFound, "No film with such id")
+                  }
                 }
               }
             }
