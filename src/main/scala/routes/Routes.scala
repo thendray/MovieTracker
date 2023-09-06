@@ -9,6 +9,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
+import configs.AppConfiguration
 import models.requests.FilmCard
 import models.responses.{ActionResult, ConfirmResponse}
 import models.{Film, Films}
@@ -21,10 +22,9 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import tools.JsonFormats._
 
-  private val configs: Config = ConfigFactory.load("app.conf")
   private implicit val timeout =
     Timeout.
-      create(configs.
+      create(AppConfiguration.configs.
         getDuration("my-app.routes.ask-timeout")
     )
 
