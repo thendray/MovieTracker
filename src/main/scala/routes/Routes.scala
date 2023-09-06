@@ -54,7 +54,7 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
             }
 
         },
-        path("film") {
+        pathPrefix("film") {
           concat(
             path(IntNumber) {
               filmId =>
@@ -63,7 +63,7 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
                   onSuccess(result) { response =>
                     response.message match {
                       case Some(mess) => complete((StatusCodes.OK, mess))
-                      case None => complete(StatusCodes.NotFound)
+                      case None => complete(StatusCodes.NotFound, "No film with such id")
                     }
                   }
                 }
@@ -80,7 +80,10 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
               entity(as[Film]) { film =>
                 val result: Future[ConfirmResponse] = updateFilm(film)
                 onSuccess(result) { response =>
-                  complete((StatusCodes.OK, response))
+                  response.message match {
+                    case Some(mess) => complete((StatusCodes.OK, mess))
+                    case None => complete(StatusCodes.NotFound, "No film with such id")
+                  }
                 }
               }
             }

@@ -64,8 +64,8 @@ class FilmService extends FilmServiceTrait {
 
     film match {
       case Some(value) => {
-        filmRepository.delete(film)
-        ConfirmResponse(Option("Film was successfully deleted!"))
+        val id = Await.result(filmRepository.delete(value), inf)
+        ConfirmResponse(Option(f"Film was successfully deleted!"))
       }
       case None => ConfirmResponse(None)
     }
@@ -76,8 +76,8 @@ class FilmService extends FilmServiceTrait {
     val oldFilm: Option[Film] = Await.result(filmRepository.getFilmById(newFilm.id.get), inf)
 
     oldFilm match {
-      case Some(value) => {
-        filmRepository.update(oldFilm, newFilm)
+      case Some(film) => {
+        filmRepository.update(film.id.get, newFilm)
         ConfirmResponse(Option("Film info was successfully updated!"))
       }
       case None => ConfirmResponse(None)

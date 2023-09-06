@@ -6,9 +6,9 @@ import models.requests.FilmCard
 import scala.concurrent.Future
 
 trait FilmRepositoryTrait {
-  def update(oldFilm: Option[Film], newFilm: Film): Unit
+  def update(oldFilmId: Int, newFilm: Film): Unit
 
-  def delete(film: Option[Film]): Unit
+  def delete(film: Film): Future[Int]
 
   def getFilmById(filmId: Int): Future[Option[Film]]
 

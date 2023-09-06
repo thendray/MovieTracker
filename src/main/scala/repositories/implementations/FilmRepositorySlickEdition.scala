@@ -25,9 +25,17 @@ class FilmRepositorySlickEdition extends FilmRepositoryTrait {
     result
   }
 
-  override def update(oldFilm: Option[Film], newFilm: Film): Unit = ???
+  override def update(oldFilmId: Int, newFilm: Film): Unit = {
+    val query = films.filter(_.id === oldFilmId).update(newFilm)
 
-  override def delete(film: Option[Film]): Unit = ???
+    db.run(query)
+  }
+
+  override def delete(film: Film): Future[Int] = {
+    val query = films.filter(x => x.id === film.id).delete
+
+    db.run(query)
+  }
 
   override def getFilmById(filmId: Int): Future[Option[Film]] = {
     val query = films.filter(_.id === filmId).result.headOption
@@ -35,7 +43,7 @@ class FilmRepositorySlickEdition extends FilmRepositoryTrait {
   }
 
   override def add(film: Film): Future[Int] = {
-    val returningFilmIdQuery = films += film
+    val returningFilmIdQuery = (films returning films.map(_.id)) += film
 
     db.run(returningFilmIdQuery)
   }
