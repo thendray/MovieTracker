@@ -1,12 +1,12 @@
 package models
 
 case class Film(
-                 id: Int,
+                 id: Option[Int],
                  name: String,
                  year: Int,
                  genre: String,
-                 personalRating: Double,
-                 userNote: String
+                 personalRating: Option[Double],
+                 userNote:Option[String]
                )
 
 case class Films(films: Seq[Film])

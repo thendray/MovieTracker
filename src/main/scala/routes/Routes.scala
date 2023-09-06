@@ -45,7 +45,6 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
   val movieTrackerRoutes: Route =
     pathPrefix("films") {
       concat(
-
           path("all") {
             get {
               onSuccess(getFilms()) {
@@ -62,7 +61,10 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
                 delete {
                   val result: Future[ConfirmResponse] = deleteFilm(filmId)
                   onSuccess(result) { response =>
-                    complete((StatusCodes.OK, response))
+                    response.message match {
+                      case Some(mess) => complete((StatusCodes.OK, mess))
+                      case None => complete(StatusCodes.NotFound)
+                    }
                   }
                 }
             },

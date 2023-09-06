@@ -1,3 +1,5 @@
 package models.responses
 
-case class ConfirmResponse(message: String)
+import akka.http.javadsl.model.StatusCodes
+
+case class ConfirmResponse(message: Option[String])

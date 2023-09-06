@@ -12,7 +12,7 @@ object JsonFormats {
 
   implicit val filmJsonFormat = jsonFormat6(Film)
   implicit val filmsJsonFormat = jsonFormat1(Films)
-  implicit val filmardJsonFormat = jsonFormat3(FilmCard)
+  implicit val filmCardJsonFormat = jsonFormat3(FilmCard)
 
   implicit val confirmResponseJsonFormat = jsonFormat1(ConfirmResponse)
 

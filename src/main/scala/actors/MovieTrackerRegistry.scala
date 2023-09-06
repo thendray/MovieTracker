@@ -32,13 +32,13 @@ object MovieTrackerRegistry {
         replyTo ! filmService.addFilm(filmCard)
         Behaviors.same
 
-//      case UpdateFilm(film, replyTo) =>
-//        replyTo ! filmService.updateFilmInfo(film)
-//        Behaviors.same
-//
-//      case DeleteFilm(filmId, replyTo) =>
-//        replyTo ! filmService.deleteFilm(filmId)
-//        Behaviors.same
+      case UpdateFilm(film, replyTo) =>
+        replyTo ! filmService.updateFilmInfo(film)
+        Behaviors.same
+
+      case DeleteFilm(filmId, replyTo) =>
+        replyTo ! filmService.deleteFilm(filmId)
+        Behaviors.same
     }
   }
 
