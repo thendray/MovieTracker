@@ -1,17 +1,19 @@
 package services
 
 import models.requests.FilmCard
-import models.responses.ConfirmResponse
+import models.responses.{ConfirmResponse, FilmCards}
 import models.{Film, Films}
 import repositories.FilmRepositoryTrait
 import repositories.implementations.FilmRepositorySlickEdition
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
 
 
 trait FilmServiceTrait {
+  def findFilmsByKeyWord(keyWord: String, limit: Int): Option[FilmCards]
+
+
   def deleteFilm(filmId: Int): ConfirmResponse
 
   def updateFilmInfo(film: Film): ConfirmResponse
@@ -26,7 +28,6 @@ trait FilmServiceTrait {
 
 class FilmService extends FilmServiceTrait {
 
-  import configs.MyExecutionContext._
 
   override def getFilms(): Option[Films] = {
     val films = filmRepository.getAllFilms()
@@ -83,6 +84,12 @@ class FilmService extends FilmServiceTrait {
       case None => ConfirmResponse(None)
     }
   }
+
+  override def findFilmsByKeyWord(keyWord: String, limit: Int): Option[FilmCards] = {
+    val filmCards = SttpRequestService.findFilmsByKeyWord(keyWord, limit)
+    filmCards
+  }
+
 }
 
 object FilmService {
