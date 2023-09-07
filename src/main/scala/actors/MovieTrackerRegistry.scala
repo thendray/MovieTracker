@@ -4,7 +4,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import models.requests.FilmCard
 import models.{Film, Films}
-import models.responses.ConfirmResponse
+import models.responses.{ConfirmResponse, FilmCards}
 import services.{FilmService, FilmServiceTrait}
 
 object MovieTrackerRegistry {
@@ -14,6 +14,7 @@ object MovieTrackerRegistry {
   final case class AddFilm(filmCard: FilmCard, replyTo: ActorRef[ConfirmResponse]) extends Command
   final case class UpdateFilm(film: Film, replyTo: ActorRef[ConfirmResponse]) extends Command
   final case class DeleteFilm(filmId: Int, replyTo: ActorRef[ConfirmResponse]) extends Command
+  final case class FindFilmsByKeyWord(keyWord: String, limit: Int, replyTo: ActorRef[Option[FilmCards]]) extends Command
 
   private val filmService: FilmServiceTrait = new FilmService
 
@@ -38,6 +39,10 @@ object MovieTrackerRegistry {
 
       case DeleteFilm(filmId, replyTo) =>
         replyTo ! filmService.deleteFilm(filmId)
+        Behaviors.same
+
+      case FindFilmsByKeyWord(keyWord, limit, replyTo) =>
+        replyTo ! filmService.findFilmsByKeyWord(keyWord, limit)
         Behaviors.same
     }
   }

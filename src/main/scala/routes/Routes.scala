@@ -6,12 +6,11 @@ import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{Directives, Route}
 import akka.util.Timeout
-import com.typesafe.config.{Config, ConfigFactory}
 import configs.AppConfiguration
 import models.requests.FilmCard
-import models.responses.{ActionResult, ConfirmResponse}
+import models.responses.{ActionResult, ConfirmResponse, FilmCards}
 import models.{Film, Films}
 
 import scala.concurrent.Future
@@ -28,31 +27,50 @@ class Routes(movieTrackerRegistry: ActorRef[MovieTrackerRegistry.Command])
         getDuration("my-app.routes.ask-timeout")
     )
 
-  def getFilms(): Future[Option[Films]] =
+  private def getFilms(): Future[Option[Films]] =
     movieTrackerRegistry.ask(GetFilms)
 
-  def addFilm(film: FilmCard): Future[ConfirmResponse] =
+  private def addFilm(film: FilmCard): Future[ConfirmResponse] =
     movieTrackerRegistry.ask(AddFilm(film, _))
 
-  def updateFilm(film: Film): Future[ConfirmResponse] =
+  private def updateFilm(film: Film): Future[ConfirmResponse] =
     movieTrackerRegistry.ask(UpdateFilm(film, _))
 
-  def deleteFilm(filmId: Int): Future[ConfirmResponse] =
+  private def deleteFilm(filmId: Int): Future[ConfirmResponse] =
     movieTrackerRegistry.ask(DeleteFilm(filmId, _))
+
+
+  private def findFilmsByKeyWord(keyWord: String, limit: Int): Future[Option[FilmCards]] =
+    movieTrackerRegistry.ask(FindFilmsByKeyWord(keyWord, limit, _))
 
 
 
   val movieTrackerRoutes: Route =
     pathPrefix("films") {
       concat(
-          path("all") {
+
+        path("find_by") {
+          concat(
             get {
-              onSuccess(getFilms()) {
-                case Some(films) => complete(films)
-                case None => complete(StatusCodes.NotFound)
+              parameters(Symbol("key_word").as[String], Symbol("limit").as[Int]) {
+                (keyWord: String, limit: Int) => {
+                  onSuccess(findFilmsByKeyWord(keyWord, limit)) {
+                    case Some(films) => complete(films)
+                    case None => complete(StatusCodes.NotFound)
+                  }
+                }
               }
             }
+          )
+        },
 
+        path("all") {
+          get {
+            onSuccess(getFilms()) {
+              case Some(films) => complete(films)
+              case None => complete(StatusCodes.NotFound)
+            }
+          }
         },
         pathPrefix("film") {
           concat(
